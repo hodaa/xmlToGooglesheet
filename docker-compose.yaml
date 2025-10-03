@@ -1,0 +1,23 @@
+secrets:
+  GOOGLE_CREDENTIALS:
+    file: ./google-credentials.json
+
+services:
+  app:
+    build: .
+    secrets:
+      - GOOGLE_CREDENTIALS
+    volumes:
+      - .:/app
+    ports:
+        - 8000:8000
+    command: ["symfony", "serve", "--port=8000"]
+    working_dir: /app
+    environment:
+      - GOOGLE_CREDENTIALS_FILE=/run/secrets/GOOGLE_CREDENTIALS
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 40s
