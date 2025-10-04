@@ -30,6 +30,6 @@ singleton for creating one instance from Google Client
 ### Usage
 
 examples : the header is read by default but if you want disable it so set the header= 0/false
-the taget node is item by default but if you want change it  pass the target node as second paramter ex:"Plant"
+the target node is item by default but if you want change it  pass the target node as second paramter ex:"Plant"
 
 'bin/console xml:feed-data "https://www.w3schools.com/xml/plant_catalog.xml" PLANT --header=1'

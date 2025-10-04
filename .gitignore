@@ -16,6 +16,10 @@
 /google-credentials.json
 .env
 .env.local
+.env.dev
+.vscode/
+.editorconfig
+google-credentials.json
 ###< phpunit/phpunit ###
 
 
