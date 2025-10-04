@@ -7,8 +7,9 @@ use Google\Client;
 use Psr\Log\LoggerInterface;
 use App\Singleton\GoogleClientSingleton;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use App\Contract\OutputAdapter;
 
-class GoogleSheetsService
+class GoogleSheetsService implements OutputAdapter
 {
     public function __construct(private LoggerInterface $logger, private Client $client, private ParameterBagInterface $params)
     {
@@ -17,13 +18,17 @@ class GoogleSheetsService
     }
 
     /**
-     * @param array $rows
-     */
-    public function pushToGoogleSheets(array $rows): bool
+      * Push data to Google Sheets
+      *
+      * @param array $rows
+      * @return bool
+      */
+    public function push(array $rows): bool
     {
+
         $service = new Sheets($this->client);
         $spreadsheetId = $this->params->get('google_sheet_id');
-        $sheetName = 'Sheet1';
+        $sheetName = 'Products!A1';
 
         $body = new Sheets\ValueRange(['values' => $rows]);
         $params = [
@@ -32,7 +37,7 @@ class GoogleSheetsService
         ];
 
         try {
-            $service->spreadsheets_values->append($spreadsheetId, $sheetName, $body, $params);
+            $response =  $service->spreadsheets_values->append($spreadsheetId, $sheetName, $body, $params);
             $this->logger->info('Data pushed to Google Sheets successfully to sheet: ' . $sheetName);
 
             return true;

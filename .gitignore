@@ -14,5 +14,8 @@
 /.phpunit.cache/
 
 /google-credentials.json
+.env
+.env.local
+###< phpunit/phpunit ###
 
 
