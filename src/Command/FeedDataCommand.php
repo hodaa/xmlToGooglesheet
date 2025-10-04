@@ -9,13 +9,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use App\Contract\OutputAdapter;
-use App\Service\CommandPusher;
 use Symfony\Component\Console\Input\InputOption;
+use Psr\Log\LoggerInterface;
 
 #[AsCommand(
     name: 'xml:feed-data',
     description: 'process a local or remote XML file and push the data of that XML file to a Google Spreadsheet via the Google Sheets API!'
 )]
+
+
+
 
 class FeedDataCommand extends Command
 {
@@ -23,7 +26,8 @@ class FeedDataCommand extends Command
 
     public function __construct(
         private readonly XmlParserService $xmlParserService,
-        private readonly OutputAdapter $googleSheetsService
+        private readonly OutputAdapter $googleSheetsService,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
     }
@@ -47,14 +51,19 @@ class FeedDataCommand extends Command
         $targetNode = $input->getArgument('targetNode');
         $readHeader = $input->getOption('header');
 
-        $rows = $this->xmlParserService->readXMLFile($xmlSource, $targetNode, $readHeader);
-        $success = $this->googleSheetsService->push($rows);
-        $output->writeln(
-            $success
-            ? "<info>Data successfully pushed to Google Sheets.</info>"
-            : "<error>Failed to push data to Google Sheets.</error>"
-        );
+        try {
+            $rows = $this->xmlParserService->readXMLFile($xmlSource, $targetNode, $readHeader);
+            $success = $this->googleSheetsService->push($rows);
+            $output->writeln("<info>Data successfully pushed to Google Sheets.</info>");
 
-        return $success ? Command::SUCCESS : Command::FAILURE;
+            return Command::SUCCESS;
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error: {$e->getMessage()}");
+            $output->writeln("<error>Error: " . $e->getMessage() . "</error>");
+            return Command::FAILURE;
+
+            return $success ?: Command::FAILURE;
+        }
     }
 }
