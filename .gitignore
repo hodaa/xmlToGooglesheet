@@ -20,6 +20,7 @@
 .vscode/
 .editorconfig
 google-credentials.json
+composer.lock
 ###< phpunit/phpunit ###
 
 
