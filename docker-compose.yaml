@@ -1,16 +1,10 @@
-secrets:
-  GOOGLE_CREDENTIALS:
-    file: ./google-credentials.json
-
 services:
   app:
     build: .
-    secrets:
-      - GOOGLE_CREDENTIALS
     volumes:
       - .:/app
     ports:
-        - 8000:8000
+      - 8000:8000
     command: ["symfony", "serve", "--port=8000"]
     working_dir: /app
     environment:
