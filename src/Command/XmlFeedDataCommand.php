@@ -2,15 +2,15 @@
 
 namespace App\Command;
 
-use App\Service\XmlParserService;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Attribute\AsCommand;
 use App\Contract\OutputAdapter;
-use Symfony\Component\Console\Input\InputOption;
+use App\Factory\InputParserFactory;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'xml:feed-data',
@@ -18,14 +18,14 @@ use Psr\Log\LoggerInterface;
 )]
 
 
-
-
-class FeedDataCommand extends Command
+class XmlFeedDataCommand extends Command
 {
     private const DEFAULT_TARGET_NODE = 'item';
+    private const INPUT_FILE_TYPE = 'XML';
+
 
     public function __construct(
-        private readonly XmlParserService $xmlParserService,
+        private readonly InputParserFactory $parserFactory,
         private readonly OutputAdapter $googleSheetsService,
         private readonly LoggerInterface $logger,
     ) {
@@ -40,7 +40,7 @@ class FeedDataCommand extends Command
                  'header',
                  null,
                  InputOption::VALUE_NEGATABLE,
-                 'Whether you want to include the header row',
+                 'Whether to include the header row',
                  true
              );
     }
@@ -52,18 +52,23 @@ class FeedDataCommand extends Command
         $readHeader = $input->getOption('header');
 
         try {
-            $rows = $this->xmlParserService->readXMLFile($xmlSource, $targetNode, $readHeader);
-            $success = $this->googleSheetsService->push($rows);
-            $output->writeln("<info>Data successfully pushed to Google Sheets.</info>");
+
+            $parser = $this->parserFactory->getStrategy(self::INPUT_FILE_TYPE);
+            $rows = $parser->parse($xmlSource, $targetNode, $readHeader);
+            $this->googleSheetsService->push($rows);
+            $output->writeln('<info>Data successfully pushed to Google Sheets.</info>');
 
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $this->logger->error("Error: {$e->getMessage()}");
-            $output->writeln("<error>Error: " . $e->getMessage() . "</error>");
+            $errorMessage = sprintf('Failed to process XML feed: %s', $e->getMessage());
+            $this->logger->error($errorMessage, [
+                'exception' => $e,
+                'xmlSource' => $xmlSource,
+                'targetNode' => $targetNode,
+            ]);
+            $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
             return Command::FAILURE;
-
-            return $success ?: Command::FAILURE;
         }
     }
 }

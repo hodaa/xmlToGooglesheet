@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Service;
+namespace App\Strategy;
 
+use App\Contract\InputParserStrategy;
 use App\Exception\NotValidXMLSourceException;
-use App\Validator\XmlValidator;
 use SimpleXMLElement;
 use XMLReader;
-use App\Contract\InputParserStrategy;
+use App\Validator\XmlValidator;
 
-class XmlParserService implements InputParserStrategy
+class XmlParserStrategy implements InputParserStrategy
 {
     public function __construct(private XmlValidator $xmlValidator)
     {

@@ -19,14 +19,14 @@ services:
         resource: '../src/'
 
 
-    # App\Service\GoogleSheetsService:
+    App\Factory\InputParserFactory: ~
     #     arguments:
     #         $credentialsPath: '%kernel.project_dir%/google-credentials.json'
 
-    Iterator: '@App\Service\XmlStreamIterator'
-    App\Service\XmlStreamIterator:
-        arguments:
-            $file: '%kernel.project_dir%/feeds.xml'
+    # Iterator: '@App\Service\XmlStreamIterator'
+    # App\Service\XmlStreamIterator:
+    #     arguments:
+    #         $file: '%kernel.project_dir%/feeds.xml'
             # '%env(FEED_XML_FILE_PATH)%'
 
     # add more service definitions when explicit configuration is needed

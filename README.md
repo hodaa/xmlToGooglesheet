@@ -11,17 +11,19 @@ Symfony Cli
 
 ## Prerequisites
 
--   Docker and Docker Compose
--   google console account
+- Docker and Docker Compose
+- google console account
 
 ## Installation
 
--   create a new application on the google console https://console.cloud.google.com/ and make sure that you enable the 'google sheets api'
--   create a service account to this application and then download the credential json file
--   copy .env.example to .env file
--   put the path of your credential json file on the GOOGLE_AUTH_CONFIG
--   create a google sheet file and put the id of this sheet on the GOOGLE_SHEET_ID
--   docker-compose up --build
+- create a new application on the google console https://console.cloud.google.com/ and make sure that you enable the 'google sheets api'
+- create a service account to this application and then download the credential json file
+- copy .env.example to .env file
+- put the path of your credential json file on the GOOGLE_AUTH_CONFIG
+- create a google sheet file and put the id of this sheet on the GOOGLE_SHEET_ID
+- docker-compose up --build
+- go inside the the container: docker-compose exec app bash
+- then run : composer install
 
 ## Architecture
 
