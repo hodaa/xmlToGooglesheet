@@ -6,6 +6,7 @@
 parameters:
     google_credentials_path: '%env(resolve:GOOGLE_AUTH_CONFIG)%'
     google_sheet_id: '%env(GOOGLE_SHEET_ID)%'
+    google_sheet_name: '%env(GOOGLE_SHEET_NAME)%'
 
 services:
     # default configuration for services in *this* file

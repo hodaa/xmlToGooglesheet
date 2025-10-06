@@ -3,14 +3,14 @@
 namespace App\Factory;
 
 use App\Contract\InputParserStrategy;
-use App\Strategy\XmlParserStrategy;
 use App\Strategy\CsvParserStrategy;
+use App\Strategy\XmlParserStrategy;
 
 class InputParserFactory
 {
     public function __construct(
-        private XmlParserStrategy $xmlStrategy,
-        private CsvParserStrategy $csvStrategy
+        private readonly XmlParserStrategy $xmlStrategy,
+        private readonly CsvParserStrategy $csvStrategy
     ) {
     }
 

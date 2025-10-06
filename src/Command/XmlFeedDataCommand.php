@@ -2,8 +2,7 @@
 
 namespace App\Command;
 
-use App\Contract\OutputAdapter;
-use App\Factory\InputParserFactory;
+use App\Service\FeedProcessor;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,8 +24,7 @@ class XmlFeedDataCommand extends Command
 
 
     public function __construct(
-        private readonly InputParserFactory $parserFactory,
-        private readonly OutputAdapter $googleSheetsService,
+        private readonly FeedProcessor $feedProcessor,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
@@ -53,11 +51,12 @@ class XmlFeedDataCommand extends Command
 
         try {
 
-            $parser = $this->parserFactory->getStrategy(self::INPUT_FILE_TYPE);
-            $rows = $parser->parse($xmlSource, $targetNode, $readHeader);
-            $this->googleSheetsService->push($rows);
+            $success = $this->feedProcessor->process($xmlSource, self::INPUT_FILE_TYPE, $targetNode, $readHeader);
+            if (!$success) {
+                $output->writeln('<error>Failed to push data to Google Sheets.</error>');
+                return Command::FAILURE;
+            }
             $output->writeln('<info>Data successfully pushed to Google Sheets.</info>');
-
             return Command::SUCCESS;
 
         } catch (\Exception $e) {

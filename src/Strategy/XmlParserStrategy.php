@@ -7,10 +7,12 @@ use App\Exception\NotValidXMLSourceException;
 use SimpleXMLElement;
 use XMLReader;
 use App\Validator\XmlValidator;
+use App\Service\XmlParserService;
+
 
 class XmlParserStrategy implements InputParserStrategy
 {
-    public function __construct(private XmlValidator $xmlValidator)
+    public function __construct(private XmlValidator $xmlValidator, private readonly XmlParserService $xmlParserService)
     {
         libxml_use_internal_errors(true);
         $this->xmlValidator = $xmlValidator;
@@ -22,39 +24,8 @@ class XmlParserStrategy implements InputParserStrategy
             throw new NotValidXMLSourceException("Invalid XML source: $xmlSource");
         }
 
-        $reader = new XMLReader();
-        try {
-            $reader->open($xmlSource);
-            $rows = [];
-            while ($reader->read()) {
-                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name === $targetNode) {
+        return $this->xmlParserService->readXmlFile($xmlSource,$targetNode,$readHeader);
 
-                    $node = new SimpleXMLElement($reader->readOuterXML());
-
-                    $row = [];
-                    if ($readHeader) {
-                        $headers = array_keys((array)$node);
-                        $rows[] = $headers;
-                        $readHeader = false;
-
-                    }
-                    foreach ($node as $child) {
-                        $row[] = (string)$child;
-                    }
-                    $rows[] = $row;
-                }
-
-            }
-            if (empty($rows)) {
-                throw new NotValidXMLSourceException("No $targetNode elements found in XML file: $xmlSource");
-            }
-        } catch (\Exception $e) {
-            throw new NotValidXMLSourceException("Error reading XML source: " . $e->getMessage());
-        }
-
-
-        $reader->close();
-        return $rows;
     }
 
 }

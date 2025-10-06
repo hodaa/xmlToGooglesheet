@@ -4,9 +4,8 @@ namespace App\Service;
 
 use Generator;
 use XMLReader;
-use App\Contract\XmlParser;
 
-class XmlParserGenerator implements XmlParser
+class XmlParserGenerator 
 {
     private const CHUNK_SIZE = 1000;
 
