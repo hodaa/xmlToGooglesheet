@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use App\Singleton\GoogleClientSingleton;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use App\Contract\OutputAdapter;
+use Generator;
 
 class GoogleSheetsService implements OutputAdapter
 {
@@ -23,7 +24,7 @@ class GoogleSheetsService implements OutputAdapter
       * @param array $rows
       * @return bool
       */
-    public function push(array $rows): bool
+    public function push(array | Generator $rows): bool
     {
 
         $service = new Sheets($this->client);

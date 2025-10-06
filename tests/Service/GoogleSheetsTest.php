@@ -4,7 +4,7 @@ namespace App\Tests\Service;
 
 use App\Service\GoogleSheetsService ;
 
-class GoogleSheetsConnectorTest extends \PHPUnit\Framework\TestCase
+class GoogleSheetsTest extends \PHPUnit\Framework\TestCase
 {
     public function testConnectConfiguresClientAndReturnsSheets()
     {
@@ -17,9 +17,9 @@ class GoogleSheetsConnectorTest extends \PHPUnit\Framework\TestCase
             ->method('addScope')
             ->with(\Google\Service\Sheets::SPREADSHEETS);
 
-        $connector = new GoogleSheetsService($mockClient, '/fake/path/credentials.json');
+        // $connector = new GoogleSheetsService($mockClient, '/fake/path/credentials.json');
 
-        $service = $connector->connect();
+        // $service = $connector->connect();
 
         $this->assertInstanceOf(\Google\Service\Sheets::class, $service);
     }

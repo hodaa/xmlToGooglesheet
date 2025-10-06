@@ -26,7 +26,8 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
 
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader
+# RUN composer install --no-interaction --optimize-autoloader
+
 EXPOSE 8000
 # CMD ["symfony", "serve", "--port=8000", "--no-tls"]
-CMD ["php", "-a"]
+# CMD ["php", "-a"]

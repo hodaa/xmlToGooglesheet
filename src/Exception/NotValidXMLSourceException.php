@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Exception;
+use RuntimeException;
 
-class NotValidXMLSourceException extends Exception
+class NotValidXMLSourceException extends RuntimeException
 {
     // Custom exception for XML parsing errors
 }

@@ -21,6 +21,7 @@
 .editorconfig
 google-credentials.json
 composer.lock
+.devcontiner
 ###< phpunit/phpunit ###
 
 

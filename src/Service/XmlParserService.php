@@ -6,8 +6,9 @@ use App\Exception\NotValidXMLSourceException;
 use App\Validator\XmlValidator;
 use SimpleXMLElement;
 use XMLReader;
+use App\Contract\ParserStratgey;
 
-class XmlParserService
+class XmlParserService implements ParserStratgey
 {
     public function __construct(private XmlValidator $xmlValidator)
     {
@@ -15,7 +16,7 @@ class XmlParserService
         $this->xmlValidator = $xmlValidator;
     }
 
-    public function readXMLFile($xmlSource, string $targetNode = 'item', bool $readHeader): array
+    public function parse($xmlSource, string $targetNode = 'item', bool $readHeader = true): array
     {
         if (!$this->xmlValidator->isValidSource($xmlSource)) {
             throw new NotValidXMLSourceException("Invalid XML source: $xmlSource");

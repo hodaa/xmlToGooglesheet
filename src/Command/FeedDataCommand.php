@@ -2,13 +2,13 @@
 
 namespace App\Command;
 
-use App\Service\XmlParserService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use App\Contract\OutputAdapter;
+use App\Contract\InputParserStratgey;
 use Symfony\Component\Console\Input\InputOption;
 use Psr\Log\LoggerInterface;
 
@@ -18,14 +18,12 @@ use Psr\Log\LoggerInterface;
 )]
 
 
-
-
 class FeedDataCommand extends Command
 {
     private const DEFAULT_TARGET_NODE = 'item';
 
     public function __construct(
-        private readonly XmlParserService $xmlParserService,
+        private readonly InputParserStratgey $xmlParser,
         private readonly OutputAdapter $googleSheetsService,
         private readonly LoggerInterface $logger,
     ) {
@@ -52,7 +50,7 @@ class FeedDataCommand extends Command
         $readHeader = $input->getOption('header');
 
         try {
-            $rows = $this->xmlParserService->readXMLFile($xmlSource, $targetNode, $readHeader);
+            $rows = $this->xmlParser->parse($xmlSource, $targetNode, $readHeader);
             $success = $this->googleSheetsService->push($rows);
             $output->writeln("<info>Data successfully pushed to Google Sheets.</info>");
 

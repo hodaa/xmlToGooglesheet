@@ -13,15 +13,15 @@ class Invoker
         $this->outputAdapter = $outputAdapter;
     }
 
-    public function excutePush(array $data): void
-    {
+    // public function excutePush(array $data): void
+    // {
 
-        $iterator = XmlStreamIterator::fromFile($xmlFile);
+    //     $iterator = XmlStreamIterator::fromFile($xmlFile);
 
-        foreach ($iterator as $record) {
-            $command = new WriteCommand($adapter, [$record], $strategy);
-            $command->execute();
-        }
-    }
+    //     foreach ($iterator as $record) {
+    //         $command = new WriteCommand($adapter, [$record], $strategy);
+    //         $command->execute();
+    //     }
+    // }
 
 }
