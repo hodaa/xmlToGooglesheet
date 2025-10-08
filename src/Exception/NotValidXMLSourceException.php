@@ -3,8 +3,11 @@
 namespace App\Exception;
 
 use RuntimeException;
-
-class NotValidXMLSourceException extends RuntimeException
+use \Throwable;
+class NotValidXmlSourceException extends RuntimeException
 {
-    // Custom exception for XML parsing errors
+    public function __construct(string $message = 'The provided XML source is not valid.', $code = 0, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

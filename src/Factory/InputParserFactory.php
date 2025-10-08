@@ -10,7 +10,7 @@ class InputParserFactory
 {
     public function __construct(
         private readonly XmlParserStrategy $xmlStrategy,
-        private readonly CsvParserStrategy $csvStrategy
+        private readonly CsvParserStrategy $csvStrategy,
     ) {
     }
 

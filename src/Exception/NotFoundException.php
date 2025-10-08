@@ -3,11 +3,13 @@
 namespace App\Exception;
 
 use Exception;
+use Throwable;
 
 class NotFoundException extends Exception
 {
-    public function __construct($path)
+    public function __construct(string $path, ?Throwable $previous = null)
     {
-        parent::__construct("File not found at the given path: {$path}", 404, null);
+        $message = "File not found at the given path: {$path}";
+        parent::__construct($message, 404, $previous);
     }
 }

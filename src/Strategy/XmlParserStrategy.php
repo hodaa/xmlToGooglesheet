@@ -3,28 +3,25 @@
 namespace App\Strategy;
 
 use App\Contract\InputParserStrategy;
-use App\Exception\NotValidXMLSourceException;
-use SimpleXMLElement;
-use XMLReader;
+use App\Exception\NotValidXmlSourceException;
+use App\Reader\Xml\XmlReaderAbstract;
 use App\Validator\XmlValidator;
-use App\Service\XmlParserService;
-
+use Generator;
 
 class XmlParserStrategy implements InputParserStrategy
 {
-    public function __construct(private XmlValidator $xmlValidator, private readonly XmlParserService $xmlParserService)
+    public function __construct(private readonly XmlValidator $xmlValidator, private readonly XmlReaderAbstract $xmlReaderAbstract)
     {
         libxml_use_internal_errors(true);
-        $this->xmlValidator = $xmlValidator;
     }
 
-    public function parse($xmlSource, string $targetNode = 'item', bool $readHeader = true): array
+    public function parse(string $xmlSource, bool $readHeader = true): Generator| array
     {
         if (!$this->xmlValidator->isValidSource($xmlSource)) {
-            throw new NotValidXMLSourceException("Invalid XML source: $xmlSource");
+            throw new NotValidXMLSourceException($xmlSource);
         }
 
-        return $this->xmlParserService->readXmlFile($xmlSource,$targetNode,$readHeader);
+        return $this->xmlReaderAbstract->readXmlFile($xmlSource, $readHeader);
 
     }
 

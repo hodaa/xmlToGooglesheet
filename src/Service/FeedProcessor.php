@@ -15,17 +15,21 @@ class FeedProcessor
     ) {
     }
 
-    public function process(string $source, string $type, string $node, bool $header): bool
+    public function process(string $fileSource, string $fileType, bool $readHeader): bool
     {
         try {
-            $parser = $this->parserFactory->getStrategy($type);
-            $rows = $parser->parse($source, $node, $header);
-            return $this->googleSheetsService->push($rows);
+            $parser = $this->parserFactory->getStrategy($fileType);
+            $rows = $parser->parse($fileSource, $readHeader);
+            foreach ($rows as $chunk) {
+                $success = $this->googleSheetsService->push($chunk);
+            }
+            return $success;
+
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('Failed to process %s feed: %s', $type, $e->getMessage()), [
+            $this->logger->error(sprintf('Failed to process %s feed: %s', $fileType, $e->getMessage()), [
                 'exception' => $e,
-                'source' => $source,
-                'type' => $type,
+                'source' => $fileSource,
+                'type' => $fileType,
             ]);
             throw $e;
         }

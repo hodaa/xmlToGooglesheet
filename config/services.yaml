@@ -7,6 +7,9 @@ parameters:
     google_credentials_path: '%env(resolve:GOOGLE_AUTH_CONFIG)%'
     google_sheet_id: '%env(GOOGLE_SHEET_ID)%'
     google_sheet_name: '%env(GOOGLE_SHEET_NAME)%'
+    chunk_size: '%env(int:CHUNK_SIZE)%'
+    xml.target_node: "item"
+    source_type : "local"  #remote
 
 services:
     # default configuration for services in *this* file
@@ -29,6 +32,11 @@ services:
     #     arguments:
     #         $file: '%kernel.project_dir%/feeds.xml'
             # '%env(FEED_XML_FILE_PATH)%'
+
+
+    App\Strategy\XmlParserStrategy:
+        arguments :
+            $xmlReaderAbstract: '@App\Reader\Xml\XmlGeneratorReader'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

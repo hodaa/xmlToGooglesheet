@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Exception\XmlParsingException;
 use App\Service\FeedProcessor;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -19,7 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class XmlFeedDataCommand extends Command
 {
-    private const DEFAULT_TARGET_NODE = 'item';
     private const INPUT_FILE_TYPE = 'XML';
 
 
@@ -33,25 +33,23 @@ class XmlFeedDataCommand extends Command
     protected function configure()
     {
         $this->addArgument('xmlSource', InputArgument::REQUIRED, 'Path or URL of XML file')
-             ->addArgument('targetNode', InputArgument::OPTIONAL, 'Target XML node to parse', self::DEFAULT_TARGET_NODE)
              ->addOption(
                  'header',
                  null,
                  InputOption::VALUE_NEGATABLE,
-                 'Whether to include the header row',
+                 'Whether to include the header row in the google sheet ',
                  true
              );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+
         $xmlSource = $input->getArgument('xmlSource');
-        $targetNode = $input->getArgument('targetNode');
         $readHeader = $input->getOption('header');
 
         try {
-
-            $success = $this->feedProcessor->process($xmlSource, self::INPUT_FILE_TYPE, $targetNode, $readHeader);
+            $success = $this->feedProcessor->process($xmlSource, self::INPUT_FILE_TYPE, $readHeader);
             if (!$success) {
                 $output->writeln('<error>Failed to push data to Google Sheets.</error>');
                 return Command::FAILURE;
@@ -59,12 +57,11 @@ class XmlFeedDataCommand extends Command
             $output->writeln('<info>Data successfully pushed to Google Sheets.</info>');
             return Command::SUCCESS;
 
-        } catch (\Exception $e) {
+        } catch (XmlParsingException $e) {
             $errorMessage = sprintf('Failed to process XML feed: %s', $e->getMessage());
             $this->logger->error($errorMessage, [
                 'exception' => $e,
-                'xmlSource' => $xmlSource,
-                'targetNode' => $targetNode,
+                'xmlSource' => $xmlSource
             ]);
             $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
             return Command::FAILURE;
