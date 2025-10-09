@@ -2,6 +2,7 @@
 
 namespace App\Reader\Xml;
 
+use App\Reader\Xml\Exception\XmlFileEmptyException;
 use Generator;
 use SimpleXMLElement;
 use XMLReader;
@@ -46,6 +47,11 @@ class XmlGeneratorReader extends XmlReaderAbstract
      */
     protected function chunkData(array|Generator $generator): Generator
     {
+        $firstItem = $generator->valid() ? $generator->current() : null;
+        if ($firstItem === null) {
+            throw new XmlFileEmptyException();
+        }
+
         $chunk = [];
         foreach ($generator as $item) {
             $chunk[] = $item;

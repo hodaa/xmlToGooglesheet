@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Factory;
+namespace App\Tests\Unit\Factory;
 
 use App\Factory\InputParserFactory;
 use App\Strategy\CsvParserStrategy;
@@ -45,7 +45,7 @@ class InputParserFactoryTest extends TestCase
 
     public function testGetStrategyIsCaseInsensitive(): void
     {
-        $strategy = $this->factory->getStrategy('XML'); // uppercase
+        $strategy = $this->factory->getStrategy('XML');
         $this->assertSame($this->xmlMock, $strategy);
     }
 }

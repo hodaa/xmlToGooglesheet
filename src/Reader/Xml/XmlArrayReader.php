@@ -44,13 +44,17 @@ class XmlArrayReader extends XmlReaderAbstract
 
             }
             if (empty($rows)) {
-                throw new XmlFileEmptyException("No $targetNode elements found in XML file: $xmlSource");
+                throw new XmlFileEmptyException();
             }
+        } catch (XmlFileEmptyException $e) {
+            // Let this exception propagate as-is
+            throw $e;
         } catch (\Exception $e) {
+            // Wrap other exceptions
             throw new NotValidXMLSourceException('Error reading XML source: ' . $e->getMessage());
+        } finally {
+            $reader->close();
         }
-
-        $reader->close();
         return $rows;
     }
     /**

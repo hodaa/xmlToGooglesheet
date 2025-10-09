@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Tests\Reader\Xml;
+namespace App\Tests\Unit\Service;
 
-use App\Exception\NotValidXMLSourceException;
 use App\Reader\Xml\Exception\XmlFileEmptyException;
 use App\Reader\Xml\XmlArrayReader;
 use PHPUnit\Framework\TestCase;
@@ -21,51 +20,27 @@ class XmlArrayReaderTest extends TestCase
 
         $paramsMock->method('get')->willReturnMap([
          ['chunk_size', 10],
-         ['xml.target_node', 'item'],
          ['source_type', 'local'],
         ]);
-        $this->xmlTestFile = __DIR__ . 'feeds_test.xml';
+        $this->xmlTestFile = __DIR__ . '/../../fake/feeds_test.xml';
 
         $this->xmlReader = new XmlArrayReader($paramsMock);
     }
 
-    public function testReadItemsReturnsArray(): void
+    public function testReadItemsReturnsGenerator(): void
     {
-        $rows = $this->xmlReader->readXMLFile($this->xmlTestFile);
-        $this->assertIsArray($rows);
-        $this->assertNotEmpty($rows);
+        $rows = $this->xmlReader->readXMLFile($this->xmlTestFile, 'item');
+        $this->assertInstanceOf(\Generator::class, $rows);
+
     }
 
-    // public function testReadItemsThrowsEmptyException(): void
-    // {
-    //     $this->expectException(XmlFileEmptyException::class);
+    public function testReadItemsThrowsEmptyException(): void
+    {
+        $this->expectException(XmlFileEmptyException::class);
 
-    //     // XML فاضي
-    //     $emptyXml = __DIR__ . '/feeds_empty.xml';
-    //     $this->xmlReader->readXMLFile($emptyXml);
-    // }
+        // XML فاضي
+        $emptyXml = __DIR__ . '/../../fake/feeds_empty.xml';
+        $this->xmlReader->readXMLFile($emptyXml, 'item');
+    }
 
-    // public function testReadItemsThrowsNotValidXMLSourceException(): void
-    // {
-    //     $this->expectException(NotValidXMLSourceException::class);
-
-    //     // XML غير صالح
-    //     $invalidXml = __DIR__ . '/feeds_invalid.xml';
-    //     $this->xmlReader->readXMLFile($invalidXml);
-    // }
-
-    // public function testChunkDataYieldsChunks(): void
-    // {
-    //     $rows = [
-    //         ['col1', 'col2'],
-    //         ['data1', 'data2'],
-    //         ['data3', 'data4'],
-    //     ];
-
-    //     $this->xmlReader->setChunkSize(2);
-
-    //     $chunks = iterator_to_array($this->xmlReader->chunkData($rows));
-    //     $this->assertCount(2, $chunks); // 3 صفوف → chunkSize 2 → 2 chunks
-    //     $this->assertEquals([['col1','col2'], ['data1','data2']], $chunks[0]);
-    // }
 }

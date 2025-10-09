@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Validator;
+namespace App\Tests\Unit\Validator;
 
 use App\Exception\InvalidConfigurationException;
 use App\Validator\ConfigurationValidator;
@@ -35,7 +35,7 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Required configuration option 'targetNode' is missing.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
@@ -47,7 +47,7 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Required configuration option 'includeHeader' is missing.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
@@ -60,7 +60,7 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Configuration option 'targetNode' has invalid value. Expected string, got integer.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
@@ -73,7 +73,7 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Configuration option 'includeHeader' has invalid value. Expected boolean, got string.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
@@ -86,7 +86,7 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Invalid target node ''. Target node cannot be empty.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
@@ -99,14 +99,14 @@ class ConfigurationValidatorTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage("Invalid target node '   '. Target node cannot be empty.");
-        
+
         $this->validator->validateParsingOptions($invalidOptions);
     }
 
     public function testGetRequiredOptions(): void
     {
         $requiredOptions = $this->validator->getRequiredOptions();
-        
+
         $this->assertIsArray($requiredOptions);
         $this->assertContains('targetNode', $requiredOptions);
         $this->assertContains('includeHeader', $requiredOptions);

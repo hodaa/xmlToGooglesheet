@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Tests\Integration;
+
 use App\Service\GoogleSheetsService;
 use App\Validator\XmlValidator;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -16,7 +18,6 @@ class XmlFeedDataCommandTest extends KernelTestCase
         $paramsMock->method('get')
            ->willReturnMap([
             ['chunk_size', 10],
-            ['xml.target_node', 'item'],
             ['source_type', 'remote'],
         ]);
 
@@ -31,7 +32,8 @@ class XmlFeedDataCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::getContainer()->set(GoogleSheetsService::class, $mockClient);
-        $exitCode = $tester->execute(['xmlSource' => __DIR__.'/../feeds_test.xml']);
+        $exitCode = $tester->execute(['xmlSource' => __DIR__.'/../fake/feeds_test.xml',
+           'targetNode' => 'item']);
 
         $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Data successfully pushed to Google Sheets', $tester->getDisplay());
@@ -47,7 +49,6 @@ class XmlFeedDataCommandTest extends KernelTestCase
         $paramsMock = $this->createMock(ParameterBagInterface::class);
         $paramsMock->method('get')->willReturnMap([
         ['chunk_size', 10],
-        ['xml.target_node', 'PLANT'],
         ['source_type', 'remote'],
         ]);
 
@@ -64,7 +65,9 @@ class XmlFeedDataCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::getContainer()->set(GoogleSheetsService::class, $mockClient);
-        $exitCode = $tester->execute(['xmlSource' => 'https://www.w3schools.com/xml/plant_catalog.xml']);
+        $exitCode = $tester->execute(['xmlSource' => 'https://www.w3schools.com/xml/plant_catalog.xml',
+        'targetNode' => 'PLANT'
+    ]);
 
         $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Data successfully pushed to Google Sheets', $tester->getDisplay());

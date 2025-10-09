@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Contract\OutputAdapter;
 use App\Exception\GoogleSheetPushException;
+use App\Factory\GoogleClientFactory;
 use App\Singleton\GoogleClientSingleton;
 use Generator;
 use Google\Client;
@@ -20,7 +21,10 @@ class GoogleSheetsService implements OutputAdapter
 
     public function __construct(private LoggerInterface $logger, private ParameterBagInterface $params)
     {
-        $this->client = GoogleClientSingleton::getInstance($this->params->get('google_credentials_path'));
+
+        $googleClientFactory = new GoogleClientFactory($this->params->get('google_credentials_path'));
+        $this->client = $googleClientFactory->create();
+        //  $this->client =  GoogleClientSingleton::getInstance($this->params->get('google_credentials_path'));
     }
 
     /**
