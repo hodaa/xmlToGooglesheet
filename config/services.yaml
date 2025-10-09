@@ -8,7 +8,7 @@ parameters:
     google_sheet_id: '%env(GOOGLE_SHEET_ID)%'
     google_sheet_name: '%env(GOOGLE_SHEET_NAME)%'
     chunk_size: '%env(int:CHUNK_SIZE)%'
-    source_type : "local"  #local
+    source_type : "remote"  #local
 
 services:
     # default configuration for services in *this* file
