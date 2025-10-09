@@ -2,7 +2,7 @@
 
 namespace App\Factory;
 
-use App\Contract\InputParserStrategy;
+use App\Strategy\Contract\InputParserStrategyInterface;
 use App\Strategy\CsvParserStrategy;
 use App\Strategy\XmlParserStrategy;
 
@@ -14,7 +14,7 @@ class InputParserFactory
     ) {
     }
 
-    public function getStrategy(string $type): InputParserStrategy
+    public function getStrategy(string $type): InputParserStrategyInterface
     {
         return match(strtolower($type)) {
             'xml' => $this->xmlStrategy,

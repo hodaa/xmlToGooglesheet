@@ -1,74 +1,160 @@
-# Push Data from XML to Google sheet
+# XML to Google Sheets Data Processor
 
 ## Description
 
-Command-line program, based on the Symfony CLI component. The program
-process a local or remote XML file and push the data of that XML file to a Google
-Spreadsheet via the Google Sheets API.
+A command-line application built with Symfony CLI that processes XML files (local or remote) and imports their data into Google Sheets using the Google Sheets API.
 
-## Stack
+## Tech Stack
 
 - PHP 8.2
-- Symfony Cli
+- Symfony Console Component
+- Google Sheets API
+- Docker & Docker Compose
 
 ## Prerequisites
 
-- Docker and Docker Compose
-- google console account
+- Docker and Docker Compose installed
+- Google Cloud Console account
 
 ## Installation
 
-- create a new application on the google console https://console.cloud.google.com/ and make sure that you enable the 'google sheets api'
-- create a service account to this application and then download the credential json file
-- copy .env.example to .env file
-- put the path of your credential json file on the GOOGLE_AUTH_CONFIG
-- create a google sheet file and put the id of this sheet on the GOOGLE_SHEET_ID
-- share the sheet with the email of your service account
-- docker-compose up --build
-- go inside the the container: docker-compose exec app bash
-- then run : composer install
+### 1. Google Cloud Setup
+
+1. Create a new project in [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable the **Google Sheets API** for your project
+3. Create a **Service Account** and download the credentials JSON file
+
+### 2. Application Setup
+
+1. Copy the environment template:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure environment variables in `.env`:
+
+   - `GOOGLE_AUTH_CONFIG`: Path to your credentials JSON file
+   - `GOOGLE_SHEET_ID`: Your target Google Sheet ID
+
+3. Share your Google Sheet with the service account email (found in credentials JSON)
+
+4. Build and start Docker containers:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+5. Install dependencies:
+   ```bash
+   docker-compose exec app bash
+   composer install
+   ```
 
 ## Usage
 
-examples : the header is read by default but if you want disable it so set the header= 0/false
-the target node is item by default but if you want change it pass the target node as second paramter ex:"Plant"
+### Basic Command
 
-'bin/console xml:feed-data "https://www.w3schools.com/xml/plant_catalog.xml" PLANT --no-header'
-bin/console xml:feed-data "https://www.w3schools.com/xml/plant_catalog.xml" PLANT --header
+```bash
+bin/console xml:feed-data <xml-source> <target-node> [options]
+```
+
+### Parameters
+
+- `<xml-source>`: URL or local path to XML file
+- `<target-node>`: XML node to parse (default: `item`)
+
+### Options
+
+- `--header`: Include header row (default: enabled)
+- `--no-header`: Exclude header row
+
+### Examples
+
+```bash
+# With header (default)
+bin/console xml:feed-data "https://www.w3schools.com/xml/plant_catalog.xml" PLANT
+
+# Without header
+bin/console xml:feed-data "https://www.w3schools.com/xml/plant_catalog.xml" PLANT --no-header
+```
 
 ## Architecture
 
-### Design Pattern
+### Design Patterns
 
-- singleton for creating one instance from Google Client
+**Singleton Pattern**
 
-- Stratge patterns for diffrent file types: so if you want feed data form different file type other than XML like CV ,Json , easily you can write the implemention in the stratgey folde
+- Ensures single Google Client instance throughout application lifecycle
 
-- Factory pattern : you don't have to created a new object for each new strategy that you will use
+**Strategy Pattern**
 
-- Data type:
-  generator : yeilding the data instead of put all them in one array that will consume the memory specially if the file is too large
+- Modular file parsing for different formats (XML, CSV, JSON)
+- Easy to extend with new file type implementations
+- Located in `App\Strategy` namespace
 
-also for small files and you just care about time and have no issues with memeory you have array implemention
-for exporting 6926 rows and using generator
+**Factory Pattern**
 
-so to do this go to file config/services and change the autowire from the generator to array
+- Dynamic strategy instantiation without manual object creation
+
+### Memory Optimization
+
+**Generator Pattern** (Default)
+
+- Uses PHP generators to yield data row-by-row
+- Memory-efficient for large files
+- Prevents loading entire dataset into memory
+
+**Array Implementation** (Alternative)
+
+- Traditional array-based processing
+- Faster for small to medium files
+- Higher memory consumption
+
+#### Switching Implementations
+
+Edit `config/services.yaml`:
+
+```yaml
 App\Strategy\XmlParserStrategy:
-arguments :
-$xmlReaderAbstract: '@App\Reader\Xml\XmlArrayReader'
+  arguments:
+    $xmlReaderAbstract: '@App\Reader\Xml\XmlArrayReader' # For array mode
+    # $xmlReaderAbstract: '@App\Reader\Xml\XmlGeneratorReader'  # For generator mode (default)
+```
 
-● Have you applied SOLID and/or CLEAN CODE principles?
-S : each sing task has it's own service/class (read the data and pushing the data to the sheet)
+### SOLID Principles
 
-using normal array.
+**Single Responsibility Principle (SRP)**
 
-# Tests
+- Separate classes for reading data and writing to Google Sheets
+- Each service handles one specific concern
 
+**Open/Closed Principle**
+
+- Extensible strategy system for new file formats
+- No modification needed to core logic
+
+## Testing
+
+Run the test suite:
+
+```bash
 php bin/phpunit
+```
 
-##Questions
-I didn't see the point of configure the source type local or remote , since the xml read whatever you sent url or path
-but i Implemented anyway as it's required
+Clear test cache:
 
-clear cache
+```bash
 php bin/console cache:clear --env=test
+```
+
+## Performance Benchmarks
+
+Tested with 6,926 rows:
+
+- **Generator mode**: Lower memory usage, suitable for large datasets
+- **Array mode**: Faster processing, higher memory consumption
+
+## Notes
+
+The application automatically detects whether the source is a URL or local file path, making the source type configuration redundant. However, this functionality has been implemented as specified in requirements.

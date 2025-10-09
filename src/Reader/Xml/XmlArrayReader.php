@@ -19,14 +19,14 @@ class XmlArrayReader extends XmlReaderAbstract
      * @return array Chunks of parsed XML data.
      * @throws NotValidXMLSourceException If the XML source is not valid or cannot be read.
      */
-    protected function readItems(string $xmlSource, bool $readHeader = true): Generator| array
+    protected function readItems(string $xmlSource, string $targetNode, bool $readHeader = true): Generator| array
     {
         $reader = new XMLReader($xmlSource);
         try {
             $reader->open($xmlSource);
             $rows = [];
             while ($reader->read()) {
-                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name === $this->targetNode) {
+                if ($reader->nodeType == XMLReader::ELEMENT && $reader->name === $targetNode) {
 
                     $node = new SimpleXMLElement($reader->readOuterXML());
 
@@ -44,7 +44,7 @@ class XmlArrayReader extends XmlReaderAbstract
 
             }
             if (empty($rows)) {
-                throw new XmlFileEmptyException("No $this->targetNode elements found in XML file: $xmlSource");
+                throw new XmlFileEmptyException("No $targetNode elements found in XML file: $xmlSource");
             }
         } catch (\Exception $e) {
             throw new NotValidXMLSourceException('Error reading XML source: ' . $e->getMessage());
@@ -53,7 +53,11 @@ class XmlArrayReader extends XmlReaderAbstract
         $reader->close();
         return $rows;
     }
-
+    /**
+     * Summary of chunkData
+     * @param array|\Generator $rows
+     * @return Generator
+     */
     protected function chunkData(array|Generator $rows): Generator
     {
         foreach (array_chunk($rows, $this->chunkSize) as $chunk) {

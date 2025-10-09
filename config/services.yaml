@@ -8,8 +8,7 @@ parameters:
     google_sheet_id: '%env(GOOGLE_SHEET_ID)%'
     google_sheet_name: '%env(GOOGLE_SHEET_NAME)%'
     chunk_size: '%env(int:CHUNK_SIZE)%'
-    xml.target_node: "item"
-    source_type : "local"  #remote
+    source_type : "local"  #local
 
 services:
     # default configuration for services in *this* file
@@ -34,9 +33,21 @@ services:
             # '%env(FEED_XML_FILE_PATH)%'
 
 
+    # Bind the interface to the concrete implementation
+    App\Service\Contract\FeedProcessorInterface: '@App\Service\FeedProcessorXml'
+    
     App\Strategy\XmlParserStrategy:
-        arguments :
+        arguments:
+            $xmlValidator: '@App\Validator\XmlValidator'
+            $configValidator: '@App\Validator\ConfigurationValidator'
             $xmlReaderAbstract: '@App\Reader\Xml\XmlGeneratorReader'
+
+    App\Service\FeedProcessorXml:
+        arguments:
+            $parserFactory: '@App\Factory\InputParserFactory'
+            $googleSheetsService: '@App\Service\GoogleSheetsService'
+            $logger: '@logger'
+            $configValidator: '@App\Validator\ConfigurationValidator'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

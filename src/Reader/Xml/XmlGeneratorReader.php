@@ -14,13 +14,13 @@ class XmlGeneratorReader extends XmlReaderAbstract
      * @param bool $readHeader Whether to read and include headers.
      * @return Generator Yields arrays of XML data.
      */
-    protected function readItems(string $xmlSource, bool $readHeader = true): Generator |array
+    protected function readItems(string $xmlSource, string $targetNode, bool $readHeader = true): Generator |array
     {
         $reader = new XMLReader();
         $reader->open($xmlSource);
 
         while ($reader->read()) {
-            if ($reader->nodeType === XMLReader::ELEMENT && $reader->name === $this->targetNode) {
+            if ($reader->nodeType === XMLReader::ELEMENT  && $reader->name === $targetNode) {
                 $node =  new SimpleXMLElement($reader->readOuterXML());
                 if ($readHeader) {
                     $headers = array_keys((array)$node);

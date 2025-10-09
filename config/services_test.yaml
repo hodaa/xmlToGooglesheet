@@ -1,0 +1,2 @@
+parameters:
+    source_type : "local"  #remote

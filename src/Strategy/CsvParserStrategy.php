@@ -2,11 +2,11 @@
 
 namespace App\Strategy;
 
-use App\Contract\InputParserStrategy;
+use App\Strategy\Contract\InputParserStrategyInterface;
 
-class CsvParserStrategy implements InputParserStrategy
+class CsvParserStrategy implements InputParserStrategyInterface
 {
-    public function parse(string $fileSource, bool $readHeader = true): array
+    public function parse(string $fileSource, array $options = []): array
     {
         // Implement CSV parsing logic here
         return [];

@@ -2,8 +2,9 @@
 
 namespace App\Command;
 
+use App\Exception\InvalidConfigurationException;
 use App\Exception\XmlParsingException;
-use App\Service\FeedProcessor;
+use App\Service\Contract\FeedProcessorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,11 +21,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class XmlFeedDataCommand extends Command
 {
-    private const INPUT_FILE_TYPE = 'XML';
+    private const TARGET_NODE = 'item';
 
 
     public function __construct(
-        private readonly FeedProcessor $feedProcessor,
+        private readonly FeedProcessorInterface $feedProcessor,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct();
@@ -33,6 +34,7 @@ class XmlFeedDataCommand extends Command
     protected function configure()
     {
         $this->addArgument('xmlSource', InputArgument::REQUIRED, 'Path or URL of XML file')
+         ->addArgument('targetNode', InputArgument::REQUIRED, 'XML target node to extract data from')
              ->addOption(
                  'header',
                  null,
@@ -46,10 +48,14 @@ class XmlFeedDataCommand extends Command
     {
 
         $xmlSource = $input->getArgument('xmlSource');
-        $readHeader = $input->getOption('header');
+
+        $options = [
+            'includeHeader' => $input->getOption('header'),
+            'targetNode' => $input->getArgument('targetNode') ?? self::TARGET_NODE ,
+        ];
 
         try {
-            $success = $this->feedProcessor->process($xmlSource, self::INPUT_FILE_TYPE, $readHeader);
+            $success = $this->feedProcessor->process($xmlSource, $options);
             if (!$success) {
                 $output->writeln('<error>Failed to push data to Google Sheets.</error>');
                 return Command::FAILURE;
@@ -57,6 +63,15 @@ class XmlFeedDataCommand extends Command
             $output->writeln('<info>Data successfully pushed to Google Sheets.</info>');
             return Command::SUCCESS;
 
+        } catch (InvalidConfigurationException $e) {
+            $errorMessage = sprintf('Configuration validation failed: %s', $e->getMessage());
+            $this->logger->error($errorMessage, [
+                'exception' => $e,
+                'xmlSource' => $xmlSource,
+                'options' => $options
+            ]);
+            $output->writeln('<error>Configuration Error: ' . $e->getMessage() . '</error>');
+            return Command::FAILURE;
         } catch (XmlParsingException $e) {
             $errorMessage = sprintf('Failed to process XML feed: %s', $e->getMessage());
             $this->logger->error($errorMessage, [
